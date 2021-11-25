@@ -14,6 +14,12 @@ struct Fraction {
       up = -up;
     }
   }
+  Fraction(Fraction fup, Fraction fdn) {
+    Fraction tmp = fup / fdn;
+    tmp.reduce();
+    up = tmp.up;
+    dn = tmp.dn;
+  }
   void reduce() {
     ll cd = __gcd(up, dn);
     up /= cd;
@@ -84,7 +90,7 @@ typedef Point3fra Vector3fra;
 //   Segment3fra() {}
 //   Segment3fra(Point3fra _s, Point3fra _e) : s(_s), e(_e) {}
 // };
-Fraction zerofra{0, 1};
+Fraction frac_zero{0, 1}, frac_one{1, 1};
 Fraction mul_dot(const Point3fra &p1, const Point3fra &p2) {
   return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z;
 }
@@ -92,13 +98,22 @@ Point3fra mul_cross(const Point3fra &p1, const Point3fra &p2) {
   return Point3fra(p1.y * p2.z - p1.z * p2.y, p1.z * p2.x - p1.x * p2.z,
                    p1.x * p2.y - p1.y * p2.x);
 }
-Fraction point_to_point2(const Point3fra A, const Point3fra B) {
+Point3fra mul_scale(const Point3fra &p1, const Fraction s) {
+  return Point3fra(p1.y * s, p1.z * s, p1.x * s);
+}
+bool is_segs_intersect(Point3fra A, Point3fra B, Point3fra C, Point3fra D) {
+  if (A == C || A == D || B == C || B == D) return true;
+  Vector3fra nm = mul_cross(B - A, D - C);
+  if (mul_dot(C - A, nm) == frac_zero) return true;
+  return false;
+}
+Fraction point_to_point2(Point3fra A, Point3fra B) {
   return (A - B).norm2();
 }
 Fraction point_to_seg2(Point3fra P, Point3fra A, Point3fra B) {
   Vector3fra ap = P - A, ab = B - A, bp = P - B, ba = A - B;
-  Fraction ret = zerofra;
-  if (mul_dot(ap, ab) <= zerofra || mul_dot(bp, ba) <= zerofra) {
+  Fraction ret = frac_zero;
+  if (mul_dot(ap, ab) <= frac_zero || mul_dot(bp, ba) <= frac_zero) {
     ret = min(ret, point_to_point2(P, A));
     ret = min(ret, point_to_point2(P, B));
   } else {
@@ -109,6 +124,38 @@ Fraction point_to_seg2(Point3fra P, Point3fra A, Point3fra B) {
   return ret;
 }
 // TODO seg to seg
+Fraction seg_to_seg2(Point3fra A, Point3fra B, Point3fra C, Point3fra D) {
+  Vector3fra ca = A - C, cb = B - C, cd = D - C, ab = B - A, ac = C - A;
+  Fraction tmp = mul_dot(mul_cross(ca, cb), cd);
+  if (is_segs_intersect(A, B, C, D)) {
+    // intersect
+    return frac_zero;
+  } else if (tmp == frac_zero) {
+    // same plane
+    Fraction ret = point_to_seg2(A, C, D);
+    ret = min(ret, point_to_seg2(B, C, D));
+    ret = min(ret, point_to_seg2(C, A, B));
+    ret = min(ret, point_to_seg2(D, A, B));
+    return ret;
+  } else {
+    // different plane
+    Fraction dn = mul_dot(ab, cd) * mul_dot(ab, cd) - ab.norm2() * cd.norm2();
+    Fraction t(ab.norm2() * mul_dot(cd, ac) - mul_dot(ab, cd) * mul_dot(ab, ac),
+               dn);
+    Fraction s(mul_dot(ab, cd) * mul_dot(cd, ac) - cd.norm2() * mul_dot(ab, ac),
+               dn);
+    if (frac_zero <= t && t <= frac_one && frac_zero <= s && s <= frac_one) {
+      return point_to_seg2(A + mul_scale(ab, t), C, D);
+    } else {
+      Fraction ret = point_to_seg2(A, C, D);
+      ret = min(ret, point_to_seg2(B, C, D));
+      ret = min(ret, point_to_seg2(C, A, B));
+      ret = min(ret, point_to_seg2(D, A, B));
+      return ret;
+    }
+  }
+}
+
 int main() {
   Point3fra a{{0, 1}, {0, 1}, {1, 1}}, b{{1, 1}, {1, 1}, {1, 1}};
   Point3fra c = mul_cross(a, b);

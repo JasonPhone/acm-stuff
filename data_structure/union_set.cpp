@@ -3,22 +3,22 @@ using namespace std;
 const int MAXN = 100005;
 int father[MAXN];
 int trank[MAXN];
-
-void Init(int n) {
+namespace UNION {
+void init(int n) {
   for (int i = 0; i < n; ++i) {
     father[i] = i;
     trank[i] = 0;
   }
 }
-int Find(int x) {
+int find(int x) {
   if (father[x] == x) {
     return x;
   }
-  return father[x] = Find(father[x]);
+  return father[x] = find(father[x]);
 }
-void Unite(int x, int y) {
-  x = Find(x);
-  y = Find(y);
+void unite(int x, int y) {
+  x = find(x);
+  y = find(y);
   if (x == y) {
     return;
   }
@@ -31,4 +31,5 @@ void Unite(int x, int y) {
     }
   }
 }
-bool inSame(int x, int y) { return Find(x) == Find(y); }
+bool in_same(int x, int y) { return find(x) == find(y); }
+}  // namespace UNION

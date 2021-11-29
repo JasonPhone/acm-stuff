@@ -1,9 +1,9 @@
 #include <iostream>
 using namespace std;
+namespace UNION {
 const int MAXN = 100005;
 int father[MAXN];
 int trank[MAXN];
-namespace UNION {
 void init(int n) {
   for (int i = 0; i < n; ++i) {
     father[i] = i;

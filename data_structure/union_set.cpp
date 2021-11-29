@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-namespace UNION {
+namespace USET {
 const int MAXN = 100005;
 int father[MAXN];
 int trank[MAXN];

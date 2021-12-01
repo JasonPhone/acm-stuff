@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-namespace USET {
+namespace UN {
 const int MAXN = 100005;
 int father[MAXN];
 int trank[MAXN];
@@ -32,4 +32,4 @@ void unite(int x, int y) {
   }
 }
 bool in_same(int x, int y) { return find(x) == find(y); }
-}  // namespace UNION
+}  // namespace UN

@@ -1,6 +1,6 @@
-int nxt[100005];
-char t[100005];
-void getNxt() {
+int nxt[100005], ns, nt;
+char t[100005], s[100005];
+void get_next() {
   nxt[0] = -1;
   int k = -1, j = 0;
   while (t[j] != '\0') {
@@ -11,5 +11,15 @@ void getNxt() {
     }
   }
 }
-
-
+int search() {
+  int id = 0;
+  for (int i = 0; i < ns; i++) {
+    if (s[i] == t[id]) {
+      id++;
+    } else {
+      while (id != -1 && s[i] != t[id]) id = nxt[id];
+      id++;
+    }
+    if (id == nt) return i - nt + 1;
+  }
+}

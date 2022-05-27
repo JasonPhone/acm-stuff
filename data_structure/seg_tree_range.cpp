@@ -156,3 +156,23 @@ int main() {
   }
   return 0;
 }
+/**
+ * query the number of elements equal to val
+ * which is previously neighbouring pos (inclusive)
+ * call (1, 5, 0) for [1, 1, 1, 0, 0, 0, 0, 0] (start from 1)
+ * will get 2
+ */
+int query_prefix_num(int k, int pos, int val) {
+  // val == -1 if seg under this node all not all same
+  if (tree[k].val == val) return min(pos, tree[k].r) - tree[k].l + 1;
+  if (tree[k].l == tree[k].r) return tree[k].val == val;
+  push_down(k);
+  int mid = tree[k].l + (tree[k].r - tree[k].l) / 2;
+  if (pos > mid) {
+    int len = query_prefix_num(k << 1 | 1, pos, val);
+    if (len == min(pos, tree[k << 1 | 1].r) - tree[k << 1 | 1].l + 1)
+      len += query_prefix_num(k << 1, pos, val);
+    return len;
+  }
+  return query_prefix_num(k << 1, pos, val);
+}

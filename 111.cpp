@@ -1,17 +1,4 @@
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-// #include <ctime>
-#include <iomanip>
-#include <iostream>
-#include <map>
-#include <queue>
-// #include <random>
-#include <set>
-#include <stack>
-#include <string>
-#include <utility>
-#include <vector>
+#include <bits/stdc++.h>
 #ifdef ja50nBUGS
 #define PEEK(x) cout << #x << ": " << x << endl;
 #else

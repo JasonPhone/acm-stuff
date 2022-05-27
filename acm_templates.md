@@ -4,7 +4,7 @@
 
 找规律
 
-dp 初始化：
+动规初始化：
 
 - 恰好   --> -INF
 - 不多于 --> 0
@@ -1181,7 +1181,6 @@ using namespace std;
 using ll = long long;
 const int MAXN = 1e6 + 5;
 const int MOD = 1e9 + 7;
-// priority_queue<ll, vector<ll>, greater<ll>> minor_que;
 
 int prime[MAXN];
 bool vis[MAXN];
@@ -1244,8 +1243,6 @@ void solve(int casei) {
   cout << ans + 1 << endl;
 }
 ```
-
-
 
 ## Matrix Inverse Element
 
@@ -1443,9 +1440,9 @@ void tarjan(int u) {
 ## KMP
 
 ```cpp
-int nxt[100005];
-char t[100005];
-void getNxt() {
+int nxt[100005], ns, nt;
+char t[100005], s[100005];
+void get_next() {
   nxt[0] = -1;
   int k = -1, j = 0;
   while (t[j] != '\0') {
@@ -1454,6 +1451,18 @@ void getNxt() {
     } else {
       k = nxt[k];
     }
+  }
+}
+int search() {
+  int id = 0;
+  for (int i = 0; i < ns; i++) {
+    if (s[i] == t[id]) {
+      id++;
+    } else {
+      while (id != -1 && s[i] != t[id]) id = nxt[id];
+      id++;
+    }
+    if (id == nt) return i - nt + 1;
   }
 }
 ```
@@ -1566,7 +1575,6 @@ namespace GTI
 ```
 
 
-
 ## Inverse Pair Merge Sort
 
 ```cpp
@@ -1594,7 +1602,6 @@ ll merge_sort(int l, int r) {
   return res;
 }
 ```
-
 
 
 ## Modui

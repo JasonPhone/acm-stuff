@@ -1,63 +1,59 @@
+// 从 1 开始
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #define ll long long
-
 using namespace std;
-
 ll p;
 int n, m, root, k, x, y, cnt, z, s;
 int w[2000010], head[2000010], dep[2000010], f[2000010], tot[2000010],
     son[2000010];
 int id[2000010], ww[2000010], top[2000010];
 
-struct c {
-  int x, next;
+struct c {  // 链式前向星节点
+  int to, next; // 这条边终点为 to, 同起点的下一条边索引为 next
 } a[2000100];
-
-struct cc {
+struct cc {  // 线段树节点
   int x, y, l, add, size, w;
 } t[2000100];
 
 void add(int x, int y) {
-  a[++k].x = y;
+  a[++k].to = y;
   a[k].next = head[x];
   head[x] = k;
 }
 
 void dfs1(int x, int fa) {
-  dep[x] = dep[fa] + 1;
-  f[x] = fa;
-  tot[x] = 1;
-  int maxn = -1;
+  dep[x] = dep[fa] + 1;  // 深度加一
+  f[x] = fa;             // 找到 x 的父节点
+  tot[x] = 1;            // x 子树现在只有自己一个节点
+  int maxn = -1;         // 临时的重链大小
   for (int i = head[x]; i; i = a[i].next) {
-    int y = a[i].x;
+    int y = a[i].to;  // x 到 y 有一条边
     if (y == fa) continue;
     dfs1(y, x);
-    tot[x] += tot[y];
+    tot[x] += tot[y];  // 统计子树大小
     if (tot[y] > maxn) {
       maxn = tot[y];
-      son[x] = y;
+      son[x] = y;  // 更新重儿子
     }
   }
 }
-
-void dfs2(int x, int topf) {
-  id[x] = ++cnt;
-  ww[cnt] = w[x];
-  top[x] = topf;
-  if (!son[x]) return;
-  dfs2(son[x], topf);
+void dfs2(int x, int topf) {  // 当前在 x, 当前链顶端 topf
+  id[x] = ++cnt;              // 重新映射的节点编号
+  ww[cnt] = w[x];             // 节点初始值用来建树
+  top[x] = topf;              // 节点链的顶端
+  if (!son[x]) return;        // 到头
+  dfs2(son[x], topf);         // 先走重儿子
   for (int i = head[x]; i; i = a[i].next) {
-    int y = a[i].x;
-    if (!id[y]) dfs2(y, y);
+    int y = a[i].to;
+    if (!id[y]) dfs2(y, y);  // 轻儿子自己作为链顶端
   }
 }
 
 void up(int k) { t[k].w = (t[k * 2].w + t[k * 2 + 1].w) % p; }
-
 void pushdown(int k) {
   if (!t[k].add) return;
   t[k * 2].add = (t[k * 2].add + t[k].add) % p;
@@ -66,7 +62,6 @@ void pushdown(int k) {
   t[k * 2 + 1].w = (t[k * 2 + 1].w + t[k * 2 + 1].size * t[k].add) % p;
   t[k].add = 0;
 }
-
 void build(int k, int l, int r) {
   t[k].x = l, t[k].y = r, t[k].size = r - l + 1;
   if (l == r) {
@@ -78,7 +73,6 @@ void build(int k, int l, int r) {
   build(k * 2 + 1, mid + 1, r);
   up(k);
 }
-
 void pushadd(int k, int l, int r, int v) {
   if (t[k].x >= l && t[k].y <= r) {
     t[k].w += t[k].size * v;
@@ -91,17 +85,15 @@ void pushadd(int k, int l, int r, int v) {
   if (r > mid) pushadd(k * 2 + 1, l, r, v);
   up(k);
 }
-
-void Treeadd(int x, int y, int v) {
-  while (top[x] != top[y]) {
-    if (dep[top[x]] < dep[top[y]]) swap(x, y);
-    pushadd(1, id[top[x]], id[x], v);
-    x = f[top[x]];
+void Treeadd(int x, int y, int v) {             // x 到 y 路径加 v
+  while (top[x] != top[y]) {                    // 当不在同一链上时
+    if (dep[top[x]] < dep[top[y]]) swap(x, y);  // 使 x 为更深点
+    pushadd(1, id[top[x]], id[x], v);  // 更新更深节点到链顶端的值
+    x = f[top[x]];                     // x 跳到顶端
   }
-  if (dep[x] > dep[y]) swap(x, y);
-  pushadd(1, id[x], id[y], v);
+  if (dep[x] > dep[y]) swap(x, y);  // 在同一链上, 使 x 为更深
+  pushadd(1, id[x], id[y], v);      // 更新 xy 之间的值
 }
-
 int pushsum(int k, int l, int r) {
   int ans = 0;
   if (t[k].x >= l && t[k].y <= r) return t[k].w;
@@ -111,30 +103,27 @@ int pushsum(int k, int l, int r) {
   if (r > mid) ans = (ans + pushsum(k * 2 + 1, l, r)) % p;
   return ans;
 }
-
-int Treesum(int x, int y) {
+int Treesum(int x, int y) {  // x 到 y 路径和
   int ans = 0;
-  while (top[x] != top[y]) {
-    if (dep[top[x]] < dep[top[y]]) swap(x, y);
-    ans = (ans + pushsum(1, id[top[x]], id[x])) % p;
-    x = f[top[x]];
+  while (top[x] != top[y]) {                    // 当不在同一链上
+    if (dep[top[x]] < dep[top[y]]) swap(x, y);  // 使 x 更深
+    ans =
+        (ans + pushsum(1, id[top[x]], id[x])) % p;  // 加上更深节点到顶端的区间
+    x = f[top[x]];                                  // 跳到顶端
   }
   if (dep[x] > dep[y]) swap(x, y);
-  ans = (ans + pushsum(1, id[x], id[y])) % p;
+  ans = (ans + pushsum(1, id[x], id[y])) % p;  // 加上区间和
   return ans;
 }
 
 int main() {
   // n 个节点，m次 操作，根节点 root，结果取模 p
   scanf("%d%d%d%d", &n, &m, &root, &p);
-  for (int i = 1; i <= n; i++) scanf("%d", &w[i]);
+  for (int i = 1; i <= n; i++) scanf("%d", &w[i]);  // 节点初始值
   for (int i = 1; i <= n - 1; i++) {  // 链式前向星
-    scanf("%d%d", &x, &y); add(x, y);
-    add(y, x);
+    scanf("%d%d", &x, &y); add(x, y); add(y, x);
   }
-  dfs1(root, 0);
-  dfs2(root, root);
-  build(1, 1, n);
+  dfs1(root, 0); dfs2(root, root); build(1, 1, n);
   for (int i = 1; i <= m; i++) {
     scanf("%d", &s);
     if (s == 1) {  // x 到 y 的最短路径都加 z
@@ -154,6 +143,7 @@ int main() {
       printf("%d\n", pushsum(1, id[x], id[x] + tot[x] - 1));
     }
   }
+  return 1;
 }
 /*
 8 10 2 448348
@@ -180,6 +170,5 @@ int main() {
 1055
 2346
 1900
-
 */
 

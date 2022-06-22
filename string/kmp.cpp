@@ -14,12 +14,8 @@ void get_next() {
 int search() {
   int id = 0;
   for (int i = 0; i < ns; i++) {
-    if (s[i] == t[id]) {
-      id++;
-    } else {
       while (id != -1 && s[i] != t[id]) id = nxt[id];
       id++;
-    }
     if (id == nt) return i - nt + 1;
   }
 }

@@ -27,9 +27,9 @@ void solve(int icase) {
   // ...
 }
 int main() {
+  IOS_ONLY;
   int tcase = 1;
   // scanf("%d", &case);
-  IOS_ONLY;
   cin >> tcase;
   for (int icase = 1; icase <= tcase; ++icase) {
     // ...

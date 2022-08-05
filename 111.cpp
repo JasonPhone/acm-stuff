@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 #ifdef ja50nBUGS
-#define PEEK(x) cout << #x << ": " << x << endl;
+#define PEEK(x) cerr << #x << ": " << x << endl;
 #else
 #define PEEK(x) ;
 #endif
